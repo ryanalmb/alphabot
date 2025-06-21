@@ -214,6 +214,10 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Alpha Pack API running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+
+  // Start Telegram bot
+  console.log('Starting Telegram bot...');
+  require('./telegram-bot.js');
 });
 
 module.exports = app;
