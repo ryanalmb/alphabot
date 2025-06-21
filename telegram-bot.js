@@ -2,6 +2,9 @@ const { Telegraf } = require('telegraf');
 const coinGeckoAPI = require('./services/coingecko-api');
 const arbitrageDetector = require('./services/arbitrage-detector');
 const userService = require('./services/user-service');
+const tradingSignals = require('./services/trading-signals');
+const mlService = require('./services/ml-service');
+const solanaService = require('./services/solana-service');
 
 // Initialize bot with token from environment
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN || '7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M');
@@ -226,24 +229,108 @@ Or create your own pack!
   });
 });
 
+// Signals command - AI-powered trading signals
+bot.command('signals', async (ctx) => {
+  try {
+    await ctx.reply('🤖 Generating AI-powered trading signals... Please wait.');
+
+    const signals = await tradingSignals.generateComprehensiveSignals(['solana', 'ethereum', 'bitcoin']);
+
+    let signalsMessage = '🤖 AI Trading Signals:\n\n';
+    signalsMessage += `📊 Market: ${signals.market_overview.market_sentiment}\n`;
+    signalsMessage += `😨 Fear/Greed: ${signals.market_overview.fear_greed_index}/100\n\n`;
+
+    signals.signals.slice(0, 3).forEach((signal, index) => {
+      const emoji = signal.signal === 'BUY' ? '🟢' : signal.signal === 'SELL' ? '🔴' : '🟡';
+      signalsMessage += `${emoji} ${signal.display_symbol}: ${signal.signal}\n`;
+      signalsMessage += `   Price: ${coinGeckoAPI.formatPrice(signal.current_price)}\n`;
+      signalsMessage += `   Confidence: ${(signal.confidence * 100).toFixed(1)}%\n`;
+      signalsMessage += `   Risk: ${signal.risk_level}\n\n`;
+    });
+
+    if (signals.top_opportunities.length > 0) {
+      signalsMessage += '🎯 Top Opportunities:\n';
+      signals.top_opportunities.forEach(opp => {
+        signalsMessage += `${opp.rank}. ${opp.symbol} ${opp.action} (${(opp.confidence * 100).toFixed(1)}%)\n`;
+      });
+    }
+
+    await ctx.reply(signalsMessage, {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '📊 Detailed Analysis', callback_data: 'detailed_signals' }],
+          [{ text: '🔄 Refresh Signals', callback_data: 'refresh_signals' }],
+          [{ text: '⚡ Execute Best Signal', callback_data: 'execute_best_signal' }],
+        ],
+      },
+    });
+  } catch (error) {
+    console.error('Error in signals command:', error);
+    await ctx.reply('❌ Unable to generate trading signals. Please try again later.');
+  }
+});
+
+// Portfolio command - Solana portfolio
+bot.command('portfolio', async (ctx) => {
+  try {
+    await ctx.reply('📊 Fetching your Solana portfolio... Please wait.');
+
+    const portfolio = await solanaService.getPortfolio();
+
+    let portfolioMessage = '📊 Your Solana Portfolio:\n\n';
+    portfolioMessage += `💳 Wallet: ${solanaService.formatAddress(portfolio.wallet)}\n`;
+    portfolioMessage += `💰 Total Value: $${portfolio.totalValueUSD.toFixed(2)}\n\n`;
+
+    portfolioMessage += '🪙 Token Balances:\n';
+    for (const [token, balance] of Object.entries(portfolio.balances)) {
+      if (balance > 0) {
+        portfolioMessage += `   ${token}: ${solanaService.formatBalance(balance)}\n`;
+      }
+    }
+
+    portfolioMessage += `\n🕐 Last Updated: ${new Date(portfolio.lastUpdated).toLocaleTimeString()}`;
+
+    await ctx.reply(portfolioMessage, {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🔄 Refresh Portfolio', callback_data: 'refresh_portfolio' }],
+          [{ text: '💱 Quick Swap', callback_data: 'quick_swap' }],
+          [{ text: '📈 Transaction History', callback_data: 'tx_history' }],
+        ],
+      },
+    });
+  } catch (error) {
+    console.error('Error in portfolio command:', error);
+    await ctx.reply('❌ Unable to fetch portfolio. Please try again later.');
+  }
+});
+
 // Help command
 bot.command('help', async (ctx) => {
   const helpMessage = `
 🤖 Alpha Pack Bot Commands:
 
-🚀 /start - Welcome & main menu
-💰 /balance - Check your holdings
-🎯 /pack - View your pack status
-🎮 /join_pack - Join or create a pack
-🏆 /leaderboard - Top packs ranking
-💱 /trade - Quick trading interface
-🔍 /opportunities - Live arbitrage opportunities
-👤 /profile - Manage your profile
-❓ /help - Show this help message
+💰 Portfolio & Trading:
+/balance - Check your portfolio
+/portfolio - Your Solana portfolio
+/trade - Quick trading interface
+/opportunities - Live arbitrage opportunities
+/signals - AI-powered trading signals
 
-🌐 Web App: http://54.89.202.8:3000
+📊 Market Data:
+/prices - Current crypto prices
+/leaderboard - Top traders
 
-Need support? Contact @AlphaPackSupport
+🎮 Social Features:
+/pack - Your pack status
+/join [pack_name] - Join a pack
+/create [pack_name] - Create new pack
+
+⚙️ Settings:
+/settings - Bot preferences
+/help - Show this help
+
+🚀 Use /start for the main menu with buttons!
   `;
   
   await ctx.reply(helpMessage);
