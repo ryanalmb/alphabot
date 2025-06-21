@@ -46,7 +46,7 @@
             "command": [
                 "sh",
                 "-c",
-                "apt-get update && apt-get install -y git python3 python3-pip build-essential pkg-config libxi-dev libxext-dev libx11-dev mesa-common-dev libgl1-mesa-dev && ln -sf /usr/bin/python3 /usr/bin/python && git clone https://github.com/ryanalmb/alphabot.git /app && cd /app && npm install && npm run build && npm start"
+                "apt-get update && apt-get install -y git python3 python3-pip build-essential pkg-config libxi-dev libxext-dev libx11-dev mesa-common-dev libgl1-mesa-dev curl && ln -sf /usr/bin/python3 /usr/bin/python && git clone https://github.com/ryanalmb/alphabot.git /app && cd /app && chmod +x build-and-start.sh && ./build-and-start.sh"
             ],
             "logConfiguration": {
                 "logDriver": "awslogs",

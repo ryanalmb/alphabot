@@ -57,6 +57,11 @@ app.post('/api/v1/auth/telegram', (req, res) => {
 // Mini-app static files
 app.use('/miniapp', express.static(path.join(__dirname, 'build')));
 
+// Serve React app for mini-app routes
+app.get('/miniapp/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
