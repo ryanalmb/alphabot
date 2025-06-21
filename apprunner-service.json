@@ -1,0 +1,31 @@
+{
+    "ServiceName": "alpha-pack-full",
+    "SourceConfiguration": {
+        "AutoDeploymentsEnabled": false,
+        "CodeRepository": {
+            "RepositoryUrl": "https://github.com/ryanalmb/alpha-pack.git",
+            "SourceCodeVersion": {
+                "Type": "BRANCH",
+                "Value": "main"
+            },
+            "CodeConfiguration": {
+                "ConfigurationSource": "REPOSITORY"
+            }
+        },
+        "AuthenticationConfiguration": {
+            "ConnectionArn": "arn:aws:apprunner:us-east-1:645634482532:connection/alpha-pack-github/c0dfa0fe492441e8add051ddcc562c21"
+        }
+    },
+    "InstanceConfiguration": {
+        "Cpu": "2 vCPU",
+        "Memory": "4 GB"
+    },
+    "HealthCheckConfiguration": {
+        "Protocol": "HTTP",
+        "Path": "/health",
+        "Interval": 10,
+        "Timeout": 5,
+        "HealthyThreshold": 1,
+        "UnhealthyThreshold": 5
+    }
+}

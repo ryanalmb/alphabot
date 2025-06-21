@@ -1,0 +1,40 @@
+{
+    "ServiceName": "alpha-pack-api",
+    "SourceConfiguration": {
+        "AutoDeploymentsEnabled": true,
+        "CodeRepository": {
+            "RepositoryUrl": "https://github.com/ryanalmb/alpha-pack.git",
+            "SourceCodeVersion": {
+                "Type": "BRANCH",
+                "Value": "main"
+            },
+            "CodeConfiguration": {
+                "ConfigurationSource": "REPOSITORY",
+                "CodeConfigurationValues": {
+                    "Runtime": "NODEJS_18",
+                    "BuildCommand": "npm ci --only=production",
+                    "StartCommand": "npm start",
+                    "RuntimeEnvironmentVariables": {
+                        "NODE_ENV": "production",
+                        "PORT": "3000",
+                        "TELEGRAM_BOT_TOKEN": "7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M",
+                        "JWT_SECRET": "y63RO6mBKLJtBG0b9D8dmAdy8QgaMJsW",
+                        "ENCRYPTION_KEY": "rmkhfTLaCAWjfCog67q9uHhPMaCuWzfO"
+                    }
+                }
+            }
+        }
+    },
+    "InstanceConfiguration": {
+        "Cpu": "0.25 vCPU",
+        "Memory": "0.5 GB"
+    },
+    "HealthCheckConfiguration": {
+        "Protocol": "HTTP",
+        "Path": "/health",
+        "Interval": 10,
+        "Timeout": 5,
+        "HealthyThreshold": 1,
+        "UnhealthyThreshold": 5
+    }
+}

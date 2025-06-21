@@ -1,0 +1,34 @@
+[package]
+name = "competition-engine"
+version = "0.1.0"
+description = "Alpha Pack competition engine for real-time pack battles and tournaments"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "competition_engine"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.28.0"
+anchor-spl = "0.28.0"
+spl-token = "3.5.0"
+alpha-pack-core = { path = "../alpha-pack-core", features = ["cpi"] }
+pack-manager = { path = "../pack-manager", features = ["cpi"] }
+solana-program = "1.16.0"
+borsh = "0.9.3"
+arrayref = "0.3.6"
+num-derive = "0.3"
+num-traits = "0.2"
+thiserror = "1.0"
+
+[dev-dependencies]
+solana-program-test = "1.16.0"
+solana-sdk = "1.16.0"
+tokio = { version = "1.0", features = ["macros"] }
