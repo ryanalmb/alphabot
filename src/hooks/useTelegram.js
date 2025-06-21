@@ -64,6 +64,7 @@ export const useTelegram = () => {
       if (tg?.showConfirm) {
         tg.showConfirm(message, resolve);
       } else {
+        // eslint-disable-next-line no-restricted-globals
         resolve(confirm(message));
       }
     });
