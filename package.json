@@ -112,6 +112,8 @@
 
     "technicalindicators": "^3.1.0",
     "ml-matrix": "^6.10.7",
+    "@tensorflow/tfjs": "^4.13.0",
+    "@tensorflow/tfjs-node": "^4.13.0",
 
     "brain.js": "^2.0.0-beta.23",
     "natural": "^6.8.0",
