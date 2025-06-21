@@ -4,7 +4,7 @@
   "description": "Enterprise-grade Solana-first social trading ecosystem",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "chmod +x start.sh && ./start.sh",
     "dev": "nodemon app.js",
     "build": "tsc",
     "watch": "tsc -w",
