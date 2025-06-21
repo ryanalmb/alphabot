@@ -109,7 +109,7 @@
     "@uniswap/v3-sdk": "^3.10.0",
     "@pancakeswap/sdk": "^5.7.0",
     "ccxt": "^4.1.64",
-    "ta-lib": "^0.2.0",
+
     "technicalindicators": "^3.1.0",
     "ml-matrix": "^6.10.7",
     "tensorflow": "^4.13.0",
