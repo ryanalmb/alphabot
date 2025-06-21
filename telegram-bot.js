@@ -30,7 +30,7 @@ Or use these quick commands:
       inline_keyboard: [
         [{
           text: '🚀 Launch Alpha Pack',
-          web_app: { url: 'http://54.146.198.15:3000/miniapp' }
+          web_app: { url: 'http://3.84.180.58:3000/miniapp' }
         }],
         [{ text: '💰 Quick Balance', callback_data: 'balance' }],
         [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],
@@ -42,8 +42,7 @@ Or use these quick commands:
 
 // Balance command
 bot.command('balance', async (ctx) => {
-  const balanceMessage = `
-💰 Your Balance:
+  const balanceMessage = `Your Balance:
 
 Wallet: 0x1234...5678 (Demo)
 Total Value: $12,345.67
@@ -51,8 +50,7 @@ P&L: +$2,345.67 (+23.4%)
 Win Rate: 78.5%
 Social Score: 1,250
 
-🏆 Rank: #42
-  `;
+Rank: #42`;
   await ctx.reply(balanceMessage);
 });
 

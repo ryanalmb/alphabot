@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://54.146.198.15:3000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://3.84.180.58:3000';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
