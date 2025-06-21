@@ -7,7 +7,8 @@ console.log('Starting Alpha Pack Telegram Bot...');
 
 // Start command
 bot.start(async (ctx) => {
-  const welcomeMessage = `
+  try {
+    const welcomeMessage = `
 🚀 Welcome to Alpha Pack!
 
 The ultimate social trading game where packs compete for DeFi alpha.
@@ -38,6 +39,10 @@ Or use these quick commands:
       ],
     },
   });
+  } catch (error) {
+    console.error('Error in start command:', error);
+    await ctx.reply('Welcome to Alpha Pack! There was an issue loading the menu. Please try /help for available commands.');
+  }
 });
 
 // Balance command
@@ -251,9 +256,10 @@ Best Trade: +$1,234 (SOL/USDC)
 
 // Callback query handlers
 bot.on('callback_query', async (ctx) => {
-  const data = ctx.callbackQuery.data;
-  
-  await ctx.answerCbQuery();
+  try {
+    const data = ctx.callbackQuery.data;
+
+    await ctx.answerCbQuery();
   
   switch (data) {
     case 'balance':
@@ -280,6 +286,10 @@ bot.on('callback_query', async (ctx) => {
     default:
       await ctx.reply('🚀 Feature coming soon! Stay tuned for updates.');
   }
+  } catch (error) {
+    console.error('Error in callback query handler:', error);
+    await ctx.answerCbQuery('An error occurred. Please try again.');
+  }
 });
 
 // Handle all text messages
@@ -298,7 +308,23 @@ bot.on('text', async (ctx) => {
 // Error handling
 bot.catch((err, ctx) => {
   console.error('Bot error:', err);
-  ctx.reply('An error occurred. Please try again later.');
+  console.error('Error stack:', err.stack);
+  if (ctx && ctx.reply) {
+    try {
+      ctx.reply('An error occurred. Please try again later.');
+    } catch (replyError) {
+      console.error('Failed to send error reply:', replyError);
+    }
+  }
+});
+
+// Process-level error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
 });
 
 // Start the bot in polling mode
