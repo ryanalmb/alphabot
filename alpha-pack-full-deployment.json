@@ -1,0 +1,71 @@
+{
+    "family": "alpha-pack-full",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "2048",
+    "memory": "4096",
+    "executionRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "alpha-pack-full-container",
+            "image": "node:18-alpine",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "TELEGRAM_BOT_TOKEN",
+                    "value": "7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M"
+                },
+                {
+                    "name": "JWT_SECRET",
+                    "value": "y63RO6mBKLJtBG0b9D8dmAdy8QgaMJsW"
+                },
+                {
+                    "name": "ENCRYPTION_KEY",
+                    "value": "rmkhfTLaCAWjfCog67q9uHhPMaCuWzfO"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "value": "us-east-1"
+                }
+            ],
+            "command": [
+                "sh",
+                "-c",
+                "apk add --no-cache git python3 py3-pip make g++ curl && git clone https://github.com/ryanalmb/alphabot.git /app && cd /app && npm install --production && npm start"
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/alpha-pack-full",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 180
+            }
+        }
+    ]
+}

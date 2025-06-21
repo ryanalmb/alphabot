@@ -12,25 +12,29 @@ bot.start(async (ctx) => {
 
 The ultimate social trading game where packs compete for DeFi alpha.
 
-Available commands:
+🎯 Launch the Alpha Pack Mini-App for the full experience with:
+• Real-time trading interface
+• Live market data & charts
+• Pack management & leaderboards
+• Advanced arbitrage tools
+
+Or use these quick commands:
 /balance - Check your token holdings
 /pack - View your pack status
-/join_pack - Join or create a pack
-/leaderboard - View top packs
-/trade - Execute a trade
-/opportunities - View arbitrage opportunities
-/profile - Manage your profile
+/trade - Quick trading
 /help - Show all commands
-
-Ready to hunt for alpha? 🎯
   `;
-  
+
   await ctx.reply(welcomeMessage, {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🎮 Join Pack', callback_data: 'join_pack' }],
-        [{ text: '📊 View Leaderboard', callback_data: 'leaderboard' }],
-        [{ text: '💰 Check Balance', callback_data: 'balance' }],
+        [{
+          text: '🚀 Launch Alpha Pack',
+          web_app: { url: 'http://44.223.69.20:3000/miniapp' }
+        }],
+        [{ text: '💰 Quick Balance', callback_data: 'balance' }],
+        [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],
+        [{ text: '⚡ Quick Trade', callback_data: 'quick_trade' }],
       ],
     },
   });
@@ -111,10 +115,13 @@ bot.command('trade', async (ctx) => {
   await ctx.reply('🔄 Quick Trade', {
     reply_markup: {
       inline_keyboard: [
+        [{
+          text: '📊 Advanced Trading (Mini-App)',
+          web_app: { url: 'http://44.223.69.20:3000/miniapp' }
+        }],
         [{ text: '💱 SOL → USDC', callback_data: 'quick_trade_SOL_USDC' }],
         [{ text: '💱 USDC → SOL', callback_data: 'quick_trade_USDC_SOL' }],
         [{ text: '⚡ Auto Arbitrage', callback_data: 'auto_arbitrage' }],
-        [{ text: '📊 Advanced Trading', url: 'http://54.89.202.8:3000' }],
       ],
     },
   });

@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,41 @@ app.use(limiter);
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Telegram authentication endpoint
+app.post('/api/v1/auth/telegram', (req, res) => {
+  try {
+    const { telegramUser, initData } = req.body;
+
+    // In production, validate initData with bot token
+    // For now, create/update user based on Telegram data
+    const user = {
+      id: telegramUser.id,
+      telegramId: telegramUser.id,
+      firstName: telegramUser.first_name,
+      lastName: telegramUser.last_name,
+      username: telegramUser.username,
+      balance: 10000, // Starting balance
+      packId: null,
+      joinedAt: new Date().toISOString(),
+    };
+
+    // Generate JWT token (simplified)
+    const token = 'jwt_' + telegramUser.id + '_' + Date.now();
+
+    res.json({
+      success: true,
+      user,
+      token,
+    });
+  } catch (error) {
+    console.error('Auth error:', error);
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Mini-app static files
+app.use('/miniapp', express.static(path.join(__dirname, 'build')));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -81,6 +117,52 @@ app.get('/api/v1/trading/status', (req, res) => {
     activeStrategies: 3,
     totalVolume24h: '$1,234,567'
   });
+});
+
+// Get arbitrage opportunities
+app.get('/api/v1/trading/opportunities', (req, res) => {
+  res.json([
+    {
+      id: 1,
+      pair: 'SOL/USDC',
+      buyExchange: 'Orca',
+      sellExchange: 'Raydium',
+      buyPrice: 142.50,
+      sellPrice: 143.15,
+      profit: 0.46,
+      volume: 50000,
+      confidence: 'High',
+    },
+    {
+      id: 2,
+      pair: 'ETH/USDC',
+      buyExchange: 'SushiSwap',
+      sellExchange: 'Uniswap',
+      buyPrice: 2340.12,
+      sellPrice: 2345.67,
+      profit: 0.24,
+      volume: 25000,
+      confidence: 'Medium',
+    },
+  ]);
+});
+
+// Execute trade
+app.post('/api/v1/trading/execute', (req, res) => {
+  const { pair, type, amount, price } = req.body;
+
+  // Simulate trade execution
+  setTimeout(() => {
+    res.json({
+      success: true,
+      tradeId: 'trade_' + Date.now(),
+      pair,
+      type,
+      amount,
+      price,
+      executedAt: new Date().toISOString(),
+    });
+  }, 1000);
 });
 
 // Packs API endpoints
