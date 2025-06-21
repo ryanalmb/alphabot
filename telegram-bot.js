@@ -30,7 +30,7 @@ Or use these quick commands:
       inline_keyboard: [
         [{
           text: '🚀 Launch Alpha Pack',
-          web_app: { url: 'http://3.84.180.58:3000/miniapp' }
+          web_app: { url: 'http://98.81.189.21:3000/miniapp' }
         }],
         [{ text: '💰 Quick Balance', callback_data: 'balance' }],
         [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],
@@ -115,7 +115,7 @@ bot.command('trade', async (ctx) => {
       inline_keyboard: [
         [{
           text: '📊 Advanced Trading (Mini-App)',
-          web_app: { url: 'http://54.146.198.15:3000/miniapp' }
+          web_app: { url: 'http://98.81.189.21:3000/miniapp' }
         }],
         [{ text: '💱 SOL → USDC', callback_data: 'quick_trade_SOL_USDC' }],
         [{ text: '💱 USDC → SOL', callback_data: 'quick_trade_USDC_SOL' }],
