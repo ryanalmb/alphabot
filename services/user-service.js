@@ -1,11 +1,13 @@
-const AWS = require('aws-sdk');
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, QueryCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 
 class UserService {
   constructor() {
     // Configure DynamoDB
-    this.dynamodb = new AWS.DynamoDB.DocumentClient({
+    const client = new DynamoDBClient({
       region: process.env.AWS_REGION || 'us-east-1'
     });
+    this.dynamodb = DynamoDBDocumentClient.from(client);
     
     this.usersTable = 'alpha-pack-users';
     this.packsTable = 'alpha-pack-packs';

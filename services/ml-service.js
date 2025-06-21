@@ -1,18 +1,20 @@
-const AWS = require('aws-sdk');
+const { SageMakerClient } = require('@aws-sdk/client-sagemaker');
+const { SageMakerRuntimeClient, InvokeEndpointCommand } = require('@aws-sdk/client-sagemaker-runtime');
+const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-bedrock-runtime');
 const axios = require('axios');
 
 class MLService {
   constructor() {
     // Configure AWS services
-    this.sagemaker = new AWS.SageMaker({
+    this.sagemaker = new SageMakerClient({
       region: process.env.AWS_REGION || 'us-east-1'
     });
-    
-    this.sagemakerRuntime = new AWS.SageMakerRuntime({
+
+    this.sagemakerRuntime = new SageMakerRuntimeClient({
       region: process.env.AWS_REGION || 'us-east-1'
     });
-    
-    this.bedrock = new AWS.BedrockRuntime({
+
+    this.bedrock = new BedrockRuntimeClient({
       region: process.env.AWS_REGION || 'us-east-1'
     });
     
