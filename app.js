@@ -101,7 +101,7 @@ app.post('/api/v1/telegram/webhook', async (req, res) => {
       const response = {
         method: 'sendMessage',
         chat_id: chatId,
-        text: `🚀 Alpha Pack received: ${text}\n\n🎯 Welcome to the future of DeFi social trading!`
+        text: `Alpha Pack received: ${text}\n\nWelcome to the future of DeFi social trading!`
       };
       
       res.json(response);
@@ -211,9 +211,9 @@ app.use('*', (req, res) => {
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Alpha Pack API running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`Alpha Pack API running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Health check: http://localhost:${PORT}/health`);
 });
 
 module.exports = app;

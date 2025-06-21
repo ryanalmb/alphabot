@@ -3,7 +3,7 @@ const { Telegraf } = require('telegraf');
 // Initialize bot with token from environment
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN || '7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M');
 
-console.log('🤖 Starting Alpha Pack Telegram Bot...');
+console.log('Starting Alpha Pack Telegram Bot...');
 
 // Start command
 bot.start(async (ctx) => {
@@ -300,19 +300,19 @@ bot.on('text', async (ctx) => {
 // Error handling
 bot.catch((err, ctx) => {
   console.error('Bot error:', err);
-  ctx.reply('❌ An error occurred. Please try again later.');
+  ctx.reply('An error occurred. Please try again later.');
 });
 
 // Start the bot in polling mode
-console.log('🚀 Alpha Pack Bot starting in polling mode...');
+console.log('Alpha Pack Bot starting in polling mode...');
 bot.launch()
   .then(() => {
-    console.log('✅ Alpha Pack Bot is running!');
-    console.log('🔗 Bot username: @AlphaPackBot');
-    console.log('📱 Ready to receive messages...');
+    console.log('Alpha Pack Bot is running!');
+    console.log('Bot username: @Alpha_Pack_bot');
+    console.log('Ready to receive messages...');
   })
   .catch((error) => {
-    console.error('❌ Failed to start bot:', error);
+    console.error('Failed to start bot:', error);
   });
 
 // Enable graceful stop
