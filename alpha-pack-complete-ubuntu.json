@@ -2,8 +2,8 @@
     "family": "alpha-pack-complete-ubuntu",
     "networkMode": "awsvpc",
     "requiresCompatibilities": ["FARGATE"],
-    "cpu": "8192",
-    "memory": "16384",
+    "cpu": "4096",
+    "memory": "8192",
     "executionRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
     "taskRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
     "containerDefinitions": [

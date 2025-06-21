@@ -2,9 +2,9 @@
 
 echo "Building Alpha Pack with Mini-App..."
 
-# Install backend dependencies (faster with npm ci)
+# Install backend dependencies (optimized)
 echo "Installing backend dependencies..."
-npm ci --production --silent
+npm install --production --silent
 
 # Build React frontend separately (optimized)
 echo "Building React frontend..."
