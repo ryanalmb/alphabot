@@ -1,0 +1,71 @@
+{
+    "family": "alpha-pack-complete",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "2048",
+    "memory": "4096",
+    "executionRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "alpha-pack-complete-container",
+            "image": "node:18-alpine",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "TELEGRAM_BOT_TOKEN",
+                    "value": "7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M"
+                },
+                {
+                    "name": "JWT_SECRET",
+                    "value": "y63RO6mBKLJtBG0b9D8dmAdy8QgaMJsW"
+                },
+                {
+                    "name": "ENCRYPTION_KEY",
+                    "value": "rmkhfTLaCAWjfCog67q9uHhPMaCuWzfO"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "value": "us-east-1"
+                }
+            ],
+            "command": [
+                "sh",
+                "-c",
+                "apk add --no-cache python3 py3-pip make g++ curl && mkdir -p /app && cd /app && cat > package.json << 'EOF'\n{\n  \"name\": \"alpha-pack\",\n  \"version\": \"1.0.0\",\n  \"main\": \"app.js\",\n  \"scripts\": { \"start\": \"node app.js\" },\n  \"dependencies\": {\n    \"express\": \"^4.18.2\", \"cors\": \"^2.8.5\", \"helmet\": \"^7.1.0\", \"morgan\": \"^1.10.0\", \"dotenv\": \"^16.3.1\", \"telegraf\": \"^4.15.6\", \"redis\": \"^4.6.10\", \"pg\": \"^8.11.3\", \"mongodb\": \"^6.2.0\", \"axios\": \"^1.6.0\", \"ws\": \"^8.14.2\", \"jsonwebtoken\": \"^9.0.2\", \"bcryptjs\": \"^2.4.3\", \"joi\": \"^17.11.0\", \"winston\": \"^3.11.0\", \"express-rate-limit\": \"^7.1.5\", \"compression\": \"^1.7.4\", \"express-validator\": \"^7.0.1\", \"uuid\": \"^9.0.1\", \"crypto-js\": \"^4.2.0\", \"moment\": \"^2.29.4\", \"lodash\": \"^4.17.21\", \"multer\": \"^1.4.5-lts.1\", \"node-cron\": \"^3.0.3\", \"socket.io\": \"^4.7.4\", \"ioredis\": \"^5.3.2\", \"passport\": \"^0.7.0\", \"passport-jwt\": \"^4.0.1\", \"express-session\": \"^1.17.3\", \"express-mongo-sanitize\": \"^2.2.0\", \"hpp\": \"^0.2.3\", \"xss\": \"^1.0.14\", \"validator\": \"^13.11.0\", \"stripe\": \"^14.9.0\", \"ccxt\": \"^4.1.64\", \"technicalindicators\": \"^3.1.0\", \"brain.js\": \"^2.0.0-beta.23\", \"natural\": \"^6.8.0\", \"sentiment\": \"^5.0.2\", \"cheerio\": \"^1.0.0-rc.12\"\n  }\n}\nEOF\n&& npm install --production && wget -O app.js https://raw.githubusercontent.com/ryanalmb/alpha-pack/main/app.js && npm start"
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/alpha-pack-complete",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 120
+            }
+        }
+    ]
+}

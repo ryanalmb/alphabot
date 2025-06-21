@@ -1,0 +1,41 @@
+{
+    "ServiceName": "alpha-pack-pro-final",
+    "SourceConfiguration": {
+        "AutoDeploymentsEnabled": true,
+        "AuthenticationConfiguration": {
+            "ConnectionArn": "arn:aws:apprunner:us-east-1:645634482532:connection/github/9341b4e4397245939c7f08aa3697a58e"
+        },
+        "CodeRepository": {
+            "RepositoryUrl": "https://github.com/ryanalmb/alpha-pack",
+            "SourceCodeVersion": {
+                "Type": "BRANCH",
+                "Value": "main"
+            },
+            "CodeConfiguration": {
+                "ConfigurationSource": "REPOSITORY"
+            }
+        }
+    },
+    "InstanceConfiguration": {
+        "Cpu": "2 vCPU",
+        "Memory": "4 GB"
+    },
+    "HealthCheckConfiguration": {
+        "Protocol": "HTTP",
+        "Path": "/health",
+        "Interval": 10,
+        "Timeout": 5,
+        "HealthyThreshold": 1,
+        "UnhealthyThreshold": 5
+    },
+    "Tags": [
+        {
+            "Key": "Project",
+            "Value": "AlphaPackPro"
+        },
+        {
+            "Key": "Environment", 
+            "Value": "Production"
+        }
+    ]
+}

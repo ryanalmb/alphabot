@@ -1,0 +1,42 @@
+{
+    "ServiceName": "alpha-pack-pro-enterprise",
+    "SourceConfiguration": {
+        "AutoDeploymentsEnabled": true,
+        "CodeRepository": {
+            "RepositoryUrl": "https://github.com/ryanalmb/alpha-pack.git",
+            "SourceCodeVersion": {
+                "Type": "BRANCH",
+                "Value": "main"
+            },
+            "CodeConfiguration": {
+                "ConfigurationSource": "REPOSITORY"
+            }
+        }
+    },
+    "InstanceConfiguration": {
+        "Cpu": "2 vCPU",
+        "Memory": "4 GB"
+    },
+    "HealthCheckConfiguration": {
+        "Protocol": "HTTP",
+        "Path": "/health",
+        "Interval": 10,
+        "Timeout": 5,
+        "HealthyThreshold": 1,
+        "UnhealthyThreshold": 5
+    },
+    "Tags": [
+        {
+            "Key": "Project",
+            "Value": "AlphaPackPro"
+        },
+        {
+            "Key": "Environment",
+            "Value": "Production"
+        },
+        {
+            "Key": "Features",
+            "Value": "Enterprise-Complete"
+        }
+    ]
+}
