@@ -52,6 +52,33 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.local
+.env.development
+.env.production
+.env.staging
+
+# Deployment configuration files with secrets
+deploy-config.json
+secrets.json
+credentials.json
+
+# AWS credentials
+.aws/
+aws-credentials.json
+
+# Private keys and certificates
+*.key
+*.pem
+*.p12
+*.pfx
+private-keys/
+
+# Telegram bot tokens
+telegram-config.json
+
+# Solana private keys
+solana-keypairs/
+*.keypair
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

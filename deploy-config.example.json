@@ -1,0 +1,46 @@
+{
+  "aws": {
+    "accessKeyId": "YOUR_AWS_ACCESS_KEY_ID",
+    "secretAccessKey": "YOUR_AWS_SECRET_ACCESS_KEY",
+    "region": "us-east-1",
+    "accountId": "YOUR_AWS_ACCOUNT_ID"
+  },
+  "telegram": {
+    "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
+    "webhookUrl": "https://your-api-gateway-url.com/api/v1/telegram/webhook"
+  },
+  "solana": {
+    "network": "devnet",
+    "rpcUrl": "https://api.devnet.solana.com",
+    "privateKey": "YOUR_SOLANA_PRIVATE_KEY_ARRAY_OR_BASE64"
+  },
+  "blockchain": {
+    "ethereum": {
+      "rpcUrl": "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"
+    },
+    "base": {
+      "rpcUrl": "https://mainnet.base.org"
+    },
+    "arbitrum": {
+      "rpcUrl": "https://arb1.arbitrum.io/rpc"
+    }
+  },
+  "security": {
+    "jwtSecret": "YOUR_JWT_SECRET_32_CHARACTERS_MIN",
+    "encryptionKey": "YOUR_ENCRYPTION_KEY_32_CHARACTERS"
+  },
+  "ai": {
+    "openaiApiKey": "YOUR_OPENAI_API_KEY_OPTIONAL",
+    "huggingfaceApiKey": "YOUR_HUGGINGFACE_API_KEY_OPTIONAL"
+  },
+  "deployment": {
+    "environment": "production",
+    "domainName": "your-domain.com",
+    "enableFeatures": {
+      "arbitrage": true,
+      "socialRewards": true,
+      "crossChain": true,
+      "mlFeatures": true
+    }
+  }
+}

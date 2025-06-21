@@ -72,9 +72,24 @@ cp .env.example .env
 npm install
 ```
 
-### 3. Deploy Infrastructure
+### 3. 🔒 Secure Deployment (Recommended)
 ```bash
-# Full deployment
+# Copy configuration template
+cp deploy-config.example.json deploy-config.json
+
+# Edit deploy-config.json with your credentials (this file is gitignored)
+# Add your AWS keys, Telegram bot token, etc.
+
+# Deploy securely
+chmod +x deploy-secure.sh
+./deploy-secure.sh
+```
+
+**📖 For detailed security setup, see [SECURE_DEPLOYMENT_GUIDE.md](./SECURE_DEPLOYMENT_GUIDE.md)**
+
+### 4. Alternative: Manual Deployment
+```bash
+# Traditional deployment (less secure)
 chmod +x scripts/deploy.sh
 ./scripts/deploy.sh
 
@@ -82,14 +97,6 @@ chmod +x scripts/deploy.sh
 npm run bootstrap
 npm run deploy:infrastructure
 npm run deploy:application
-```
-
-### 4. Configure Secrets
-```bash
-# Update AWS Secrets Manager with your keys
-aws secretsmanager update-secret \
-  --secret-id alphapack/telegram/bot-token \
-  --secret-string '{"token":"YOUR_BOT_TOKEN"}'
 ```
 
 ### 5. Deploy Solana Programs
