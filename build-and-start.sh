@@ -15,8 +15,9 @@ cp -r src frontend-temp/
 cp -r public frontend-temp/
 cd frontend-temp
 
-# Install frontend dependencies and build (faster with npm ci)
-npm ci --silent
+# Install ALL dependencies (including dev) for React build
+echo "Installing frontend dependencies (including dev for build)..."
+npm install --silent
 npm run build
 
 # Copy built files to main app

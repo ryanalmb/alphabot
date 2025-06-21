@@ -1,27 +1,44 @@
 const { Telegraf } = require('telegraf');
+const coinGeckoAPI = require('./services/coingecko-api');
+const arbitrageDetector = require('./services/arbitrage-detector');
+const userService = require('./services/user-service');
 
 // Initialize bot with token from environment
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN || '7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M');
 
-console.log('Starting Alpha Pack Telegram Bot...');
+console.log('Starting Alpha Pack Telegram Bot with real data integration...');
 
 // Start command
 bot.start(async (ctx) => {
   try {
+    // Create or get user data
+    const user = await userService.createUser(ctx.from.id, {
+      username: ctx.from.username,
+      first_name: ctx.from.first_name,
+      last_name: ctx.from.last_name
+    });
+
+    const userStats = userService.formatUserStats(user);
+
     const welcomeMessage = `
-🚀 Welcome to Alpha Pack!
+🚀 Welcome to Alpha Pack, ${user.username || ctx.from.first_name || 'Trader'}!
 
 The ultimate social trading game where packs compete for DeFi alpha.
 
-🎯 Launch the Alpha Pack Mini-App for the full experience with:
-• Real-time trading interface
-• Live market data & charts
-• Pack management & leaderboards
-• Advanced arbitrage tools
+💰 Your Account:
+Balance: ${userStats.balanceFormatted}
+Social Score: ${user.socialScore}
+Total Trades: ${user.totalTrades}
 
-Or use these quick commands:
-/balance - Check your token holdings
-/pack - View your pack status
+🎮 Features:
+• Real-time arbitrage opportunities
+• Pack vs pack competition
+• Social trading & leaderboards
+• Multi-chain DeFi integration
+
+📱 Quick Commands:
+/balance - Check your portfolio
+/opportunities - Live arbitrage data
 /trade - Quick trading
 /help - Show all commands
   `;
@@ -29,13 +46,10 @@ Or use these quick commands:
   await ctx.reply(welcomeMessage, {
     reply_markup: {
       inline_keyboard: [
-        [{
-          text: '🚀 Launch Alpha Pack',
-          web_app: { url: 'http://98.81.189.21:3000/miniapp' }
-        }],
-        [{ text: '💰 Quick Balance', callback_data: 'balance' }],
+        [{ text: '💰 Check Balance', callback_data: 'balance' }],
+        [{ text: '🔍 Arbitrage Opportunities', callback_data: 'opportunities' }],
         [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],
-        [{ text: '⚡ Quick Trade', callback_data: 'quick_trade' }],
+        [{ text: '💱 Quick Trade', callback_data: 'quick_trade' }],
       ],
     },
   });
@@ -47,16 +61,26 @@ Or use these quick commands:
 
 // Balance command
 bot.command('balance', async (ctx) => {
-  const balanceMessage = `Your Balance:
+  try {
+    const user = await userService.getUser(ctx.from.id);
+    const userStats = userService.formatUserStats(user);
 
-Wallet: 0x1234...5678 (Demo)
-Total Value: $12,345.67
-P&L: +$2,345.67 (+23.4%)
-Win Rate: 78.5%
-Social Score: 1,250
+    const balanceMessage = `💰 Your Balance:
 
-Rank: #42`;
-  await ctx.reply(balanceMessage);
+💳 Account: ${user.username || 'Anonymous'}
+💵 Total Value: ${userStats.balanceFormatted}
+📊 P&L: ${userStats.totalPnLFormatted}
+🎯 Win Rate: ${userStats.winRateFormatted}
+⭐ Social Score: ${user.socialScore}
+📈 Total Trades: ${user.totalTrades}
+
+🏆 Keep trading to climb the leaderboard!`;
+
+    await ctx.reply(balanceMessage);
+  } catch (error) {
+    console.error('Error in balance command:', error);
+    await ctx.reply('❌ Unable to fetch balance. Please try again later.');
+  }
 });
 
 // Pack command
@@ -132,36 +156,39 @@ bot.command('trade', async (ctx) => {
 
 // Opportunities command
 bot.command('opportunities', async (ctx) => {
-  const opportunitiesMessage = `
-🔍 Live Arbitrage Opportunities:
+  try {
+    const opportunities = await arbitrageDetector.detectArbitrageOpportunities();
 
-1. SOL/USDC
-   📈 Raydium: $142.50
-   📉 Orca: $141.85
-   💰 Profit: +0.46% ($6.50)
+    if (opportunities.length === 0) {
+      await ctx.reply('🔍 No profitable arbitrage opportunities found at the moment. Market is efficient! 📊');
+      return;
+    }
 
-2. ETH/USDC
-   📈 Uniswap: $2,345.67
-   📉 SushiSwap: $2,340.12
-   💰 Profit: +0.24% ($5.55)
+    let opportunitiesMessage = '🔍 Live Arbitrage Opportunities:\n\n';
 
-3. BTC/USDC
-   📈 Jupiter: $43,210.50
-   📉 Serum: $43,185.20
-   💰 Profit: +0.06% ($25.30)
+    opportunities.slice(0, 5).forEach((opp, index) => {
+      const formatted = arbitrageDetector.formatOpportunity(opp);
+      opportunitiesMessage += `${index + 1}. ${opp.symbol}/USDC\n`;
+      opportunitiesMessage += `   📈 ${opp.sellExchange}: ${formatted.sellPriceFormatted}\n`;
+      opportunitiesMessage += `   📉 ${opp.buyExchange}: ${formatted.buyPriceFormatted}\n`;
+      opportunitiesMessage += `   💰 Profit: ${formatted.profitFormatted} (${formatted.profitUSDFormatted})\n\n`;
+    });
 
-⚡ Auto-execute available!
-  `;
-  
-  await ctx.reply(opportunitiesMessage, {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: '⚡ Execute All', callback_data: 'execute_all_arb' }],
-        [{ text: '🎯 Execute SOL', callback_data: 'execute_sol_arb' }],
-        [{ text: '🔄 Refresh', callback_data: 'opportunities' }],
-      ],
-    },
-  });
+    opportunitiesMessage += '⚡ Auto-execute available!';
+
+    await ctx.reply(opportunitiesMessage, {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '⚡ Execute Best', callback_data: 'execute_best_arb' }],
+          [{ text: '🔄 Refresh', callback_data: 'opportunities' }],
+          [{ text: '📊 View All', callback_data: 'view_all_opportunities' }],
+        ],
+      },
+    });
+  } catch (error) {
+    console.error('Error in opportunities command:', error);
+    await ctx.reply('❌ Unable to fetch arbitrage opportunities. Please try again later.');
+  }
 });
 
 // Join pack command
@@ -294,13 +321,38 @@ bot.on('callback_query', async (ctx) => {
 
 // Handle all text messages
 bot.on('text', async (ctx) => {
-  const text = ctx.message.text.toLowerCase();
-  
-  if (text.includes('price') || text.includes('sol') || text.includes('btc') || text.includes('eth')) {
-    await ctx.reply('📊 Current Prices:\n\nSOL: $142.50 (+2.3%)\nBTC: $43,210 (+1.8%)\nETH: $2,345 (+3.1%)\n\nUse /trade to start trading!');
-  } else if (text.includes('alpha') || text.includes('pack')) {
-    await ctx.reply('🎯 Alpha Pack is the ultimate social trading game!\n\nUse /start to begin your journey or /help for commands.');
-  } else {
+  try {
+    const text = ctx.message.text.toLowerCase();
+
+    if (text.includes('price') || text.includes('sol') || text.includes('btc') || text.includes('eth')) {
+      const prices = await coinGeckoAPI.getCurrentPrices(['solana', 'ethereum', 'bitcoin']);
+
+      let priceMessage = '📊 Live Crypto Prices:\n\n';
+
+      if (prices.solana) {
+        const sol = prices.solana;
+        priceMessage += `SOL: ${coinGeckoAPI.formatPrice(sol.usd)} ${coinGeckoAPI.getPriceEmoji(sol.usd_24h_change)} (${coinGeckoAPI.formatPercentage(sol.usd_24h_change)})\n`;
+      }
+
+      if (prices.bitcoin) {
+        const btc = prices.bitcoin;
+        priceMessage += `BTC: ${coinGeckoAPI.formatPrice(btc.usd)} ${coinGeckoAPI.getPriceEmoji(btc.usd_24h_change)} (${coinGeckoAPI.formatPercentage(btc.usd_24h_change)})\n`;
+      }
+
+      if (prices.ethereum) {
+        const eth = prices.ethereum;
+        priceMessage += `ETH: ${coinGeckoAPI.formatPrice(eth.usd)} ${coinGeckoAPI.getPriceEmoji(eth.usd_24h_change)} (${coinGeckoAPI.formatPercentage(eth.usd_24h_change)})\n`;
+      }
+
+      priceMessage += '\n💱 Use /trade to start trading!';
+      await ctx.reply(priceMessage);
+    } else if (text.includes('alpha') || text.includes('pack')) {
+      await ctx.reply('🎯 Alpha Pack is the ultimate social trading game!\n\nUse /start to begin your journey or /help for commands.');
+    } else {
+      await ctx.reply('🤖 I received your message! Use /help to see available commands or /start for the main menu.');
+    }
+  } catch (error) {
+    console.error('Error in text handler:', error);
     await ctx.reply('🤖 I received your message! Use /help to see available commands or /start for the main menu.');
   }
 });

@@ -57,9 +57,31 @@ app.post('/api/v1/auth/telegram', (req, res) => {
 // Mini-app static files
 app.use('/miniapp', express.static(path.join(__dirname, 'build')));
 
-// Serve React app for mini-app routes
+// Serve React app for mini-app routes (including root)
+app.get('/miniapp', (req, res) => {
+  const indexPath = path.join(__dirname, 'build', 'index.html');
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.error('Mini-app build files not found at:', indexPath);
+    res.status(500).json({
+      error: 'Mini-app not available',
+      message: 'React build files not found. Please check build process.'
+    });
+  }
+});
+
 app.get('/miniapp/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  const indexPath = path.join(__dirname, 'build', 'index.html');
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.error('Mini-app build files not found at:', indexPath);
+    res.status(500).json({
+      error: 'Mini-app not available',
+      message: 'React build files not found. Please check build process.'
+    });
+  }
 });
 
 // Health check endpoint
