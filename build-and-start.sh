@@ -2,9 +2,15 @@
 
 echo "Building Alpha Pack with Mini-App..."
 
-# Install backend dependencies (optimized)
+# Install backend dependencies (optimized with memory limits)
 echo "Installing backend dependencies..."
-npm install --production --silent
+export NODE_OPTIONS="--max-old-space-size=4096"
+npm config set registry https://registry.npmjs.org/
+npm config set timeout 300000
+npm config set fetch-timeout 300000
+npm config set fetch-retry-mintimeout 20000
+npm config set fetch-retry-maxtimeout 120000
+npm install --production --silent --no-audit --no-fund
 
 # Build React frontend separately (optimized)
 echo "Building React frontend..."
@@ -17,7 +23,11 @@ cd frontend-temp
 
 # Install ALL dependencies (including dev) for React build
 echo "Installing frontend dependencies (including dev for build)..."
-npm install --silent
+export NODE_OPTIONS="--max-old-space-size=4096"
+npm config set registry https://registry.npmjs.org/
+npm config set timeout 300000
+npm install --silent --no-audit --no-fund
+echo "Building React frontend..."
 npm run build
 
 # Copy built files to main app

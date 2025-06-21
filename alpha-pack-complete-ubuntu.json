@@ -49,6 +49,18 @@
                 {
                     "name": "LC_ALL",
                     "value": "en_US.UTF-8"
+                },
+                {
+                    "name": "NODE_OPTIONS",
+                    "value": "--max-old-space-size=4096"
+                },
+                {
+                    "name": "NPM_CONFIG_TIMEOUT",
+                    "value": "300000"
+                },
+                {
+                    "name": "NPM_CONFIG_REGISTRY",
+                    "value": "https://registry.npmjs.org/"
                 }
             ],
             "command": [
