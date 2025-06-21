@@ -6,7 +6,6 @@ echo "Building Alpha Pack with Mini-App..."
 echo "Installing backend dependencies..."
 export NODE_OPTIONS="--max-old-space-size=4096"
 npm config set registry https://registry.npmjs.org/
-npm config set timeout 300000
 npm config set fetch-timeout 300000
 npm config set fetch-retry-mintimeout 20000
 npm config set fetch-retry-maxtimeout 120000
@@ -25,7 +24,7 @@ cd frontend-temp
 echo "Installing frontend dependencies (including dev for build)..."
 export NODE_OPTIONS="--max-old-space-size=4096"
 npm config set registry https://registry.npmjs.org/
-npm config set timeout 300000
+npm config set fetch-timeout 300000
 npm install --silent --no-audit --no-fund
 echo "Building React frontend..."
 npm run build
