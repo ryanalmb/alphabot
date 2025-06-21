@@ -45,8 +45,8 @@ mkdir -p ~/.aws
 
 cat > ~/.aws/credentials << 'EOF'
 [default]
-aws_access_key_id = AKIAZMUWQMFSP2UO5GF4
-aws_secret_access_key = 7QtgLr/ib/eDPwX5pUQkIgjGtlV/XWLE7OANAjeQ
+aws_access_key_id = YOUR_AWS_ACCESS_KEY_ID
+aws_secret_access_key = YOUR_AWS_SECRET_ACCESS_KEY
 region = us-east-1
 EOF
 
