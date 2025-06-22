@@ -57,7 +57,10 @@ app.post('/api/v1/auth/telegram', (req, res) => {
 // Mini-app API routes
 app.use('/api/miniapp', require('./routes/miniapp'));
 
-// Mini-app static files
+// Mini-app static files - serve at root for React build
+app.use('/static', express.static(path.join(__dirname, 'build', 'static')));
+
+// Mini-app static files - serve entire build directory at /miniapp
 app.use('/miniapp', express.static(path.join(__dirname, 'build')));
 
 // Serve React app for mini-app routes (including root)
