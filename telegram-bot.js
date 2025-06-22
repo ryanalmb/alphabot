@@ -49,7 +49,7 @@ Total Trades: ${user.totalTrades}
   await ctx.reply(welcomeMessage, {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🚀 Launch Alpha Pack Mini-App', web_app: { url: `${process.env.WEBAPP_URL || 'http://3.91.159.181:3000'}/miniapp` } }],
+        [{ text: '📱 Mini-App (Coming Soon)', callback_data: 'miniapp_info' }],
         [{ text: '💰 Check Balance', callback_data: 'balance' }],
         [{ text: '🔍 Arbitrage Opportunities', callback_data: 'opportunities' }],
         [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],
@@ -377,6 +377,76 @@ bot.on('callback_query', async (ctx) => {
     await ctx.answerCbQuery();
   
   switch (data) {
+    case 'miniapp_info':
+      const miniappMessage = `
+📱 *Alpha Pack Mini-App*
+
+🚀 *Full-Featured Trading Interface*
+• Dashboard with real-time portfolio stats
+• Advanced trading with live market data
+• Pack management and social features
+• Competition system with real prizes
+• Social feed and leaderboards
+
+🌐 *Direct Access*
+Visit: http://54.224.48.59:3000/miniapp
+
+⚠️ *Note*: HTTPS version coming soon for full Telegram integration!
+
+*Features Available Now:*
+✅ Real-time trading data
+✅ Portfolio management
+✅ Pack competitions
+✅ Social trading feed
+✅ Arbitrage opportunities
+      `;
+
+      await ctx.editMessageText(miniappMessage, {
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🔙 Back to Menu', callback_data: 'back_to_menu' }],
+          ],
+        },
+      });
+      break;
+    case 'back_to_menu':
+      // Resend the start menu
+      const welcomeMessage = `
+🚀 Welcome to Alpha Pack, ${ctx.from.first_name || 'Trader'}!
+
+The ultimate social trading game where packs compete for DeFi alpha.
+
+💰 Your Account:
+Balance: $10,000
+Social Score: 100
+Total Trades: 0
+
+🎮 Features:
+• Real-time arbitrage opportunities
+• Pack vs pack competition
+• Social trading & leaderboards
+• Multi-chain DeFi integration
+
+📱 Quick Commands:
+/balance - Check your portfolio
+/opportunities - Live arbitrage data
+/trade - Quick trading
+/help - Show all commands
+      `;
+
+      await ctx.editMessageText(welcomeMessage, {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '📱 Mini-App (Coming Soon)', callback_data: 'miniapp_info' }],
+            [{ text: '💰 Check Balance', callback_data: 'balance' }],
+            [{ text: '🔍 Arbitrage Opportunities', callback_data: 'opportunities' }],
+            [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],
+            [{ text: '💱 Quick Trade', callback_data: 'quick_trade' }],
+          ],
+        },
+      });
+      break;
     case 'balance':
       await ctx.reply('💰 Fetching your balance...');
       break;
