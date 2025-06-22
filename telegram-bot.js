@@ -49,6 +49,7 @@ Total Trades: ${user.totalTrades}
   await ctx.reply(welcomeMessage, {
     reply_markup: {
       inline_keyboard: [
+        [{ text: '🚀 Launch Alpha Pack Mini-App', web_app: { url: `${process.env.WEBAPP_URL || 'http://3.91.159.181:3000'}/miniapp` } }],
         [{ text: '💰 Check Balance', callback_data: 'balance' }],
         [{ text: '🔍 Arbitrage Opportunities', callback_data: 'opportunities' }],
         [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],

@@ -54,6 +54,9 @@ app.post('/api/v1/auth/telegram', (req, res) => {
   }
 });
 
+// Mini-app API routes
+app.use('/api/miniapp', require('./routes/miniapp'));
+
 // Mini-app static files
 app.use('/miniapp', express.static(path.join(__dirname, 'build')));
 
