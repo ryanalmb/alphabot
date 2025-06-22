@@ -49,7 +49,7 @@ Total Trades: ${user.totalTrades}
   await ctx.reply(welcomeMessage, {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🚀 Launch Alpha Pack Mini-App', web_app: { url: 'https://alphapack.duckdns.org/miniapp' } }],
+        [{ text: '🚀 Launch Alpha Pack Mini-App', web_app: { url: 'https://alphapackbot.duckdns.org/miniapp' } }],
         [{ text: '💰 Check Balance', callback_data: 'balance' }],
         [{ text: '🔍 Arbitrage Opportunities', callback_data: 'opportunities' }],
         [{ text: '📊 Leaderboard', callback_data: 'leaderboard' }],
@@ -389,7 +389,7 @@ bot.on('callback_query', async (ctx) => {
 • Social feed and leaderboards
 
 🌐 *Direct Access*
-Visit: https://alphapack.duckdns.org/miniapp
+Visit: https://alphapackbot.duckdns.org/miniapp
 
 ✅ *Secure HTTPS*: Full Telegram WebApp integration enabled!
 
