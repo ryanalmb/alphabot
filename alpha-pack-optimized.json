@@ -1,5 +1,5 @@
 {
-    "family": "alpha-pack-complete-ubuntu",
+    "family": "alpha-pack-optimized",
     "networkMode": "awsvpc",
     "requiresCompatibilities": ["FARGATE"],
     "cpu": "4096",
@@ -8,19 +8,25 @@
     "taskRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
     "containerDefinitions": [
         {
-            "name": "alpha-pack-complete-ubuntu-container",
+            "name": "alpha-pack-optimized-container",
             "image": "node:18",
+            "command": [
+                "sh",
+                "-c",
+                "apt-get update && apt-get install -y --no-install-recommends git curl python3 python3-pip build-essential && echo 'Starting git clone...' && git config --global http.postBuffer 524288000 && git config --global http.maxRequestBuffer 100M && git config --global core.compression 0 && git clone --depth 1 --single-branch --no-tags https://github.com/ryanalmb/alphabot.git /app && echo 'Git clone completed' && cd /app && echo 'Installing dependencies...' && npm install --production --silent --no-audit --no-fund && echo 'Building frontend...' && npm run build && echo 'Starting application...' && node app.js"
+            ],
             "essential": true,
             "portMappings": [
                 {
                     "containerPort": 3000,
+                    "hostPort": 3000,
                     "protocol": "tcp"
                 }
             ],
             "environment": [
                 {
-                    "name": "NODE_ENV",
-                    "value": "production"
+                    "name": "AWS_REGION",
+                    "value": "us-east-1"
                 },
                 {
                     "name": "PORT",
@@ -39,8 +45,16 @@
                     "value": "rmkhfTLaCAWjfCog67q9uHhPMaCuWzfO"
                 },
                 {
-                    "name": "AWS_REGION",
-                    "value": "us-east-1"
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "NODE_OPTIONS",
+                    "value": "--max-old-space-size=4096"
+                },
+                {
+                    "name": "NPM_CONFIG_REGISTRY",
+                    "value": "https://registry.npmjs.org/"
                 },
                 {
                     "name": "LANG",
@@ -49,25 +63,12 @@
                 {
                     "name": "LC_ALL",
                     "value": "en_US.UTF-8"
-                },
-                {
-                    "name": "NODE_OPTIONS",
-                    "value": "--max-old-space-size=6144"
-                },
-                {
-                    "name": "NPM_CONFIG_REGISTRY",
-                    "value": "https://registry.npmjs.org/"
                 }
-            ],
-            "command": [
-                "sh",
-                "-c",
-                "apt-get update && apt-get install -y --no-install-recommends git python3 python3-pip build-essential pkg-config libxi-dev libxext-dev libx11-dev mesa-common-dev libgl1-mesa-dev curl locales && locale-gen en_US.UTF-8 && ln -sf /usr/bin/python3 /usr/bin/python && git clone --depth 1 https://github.com/ryanalmb/alphabot.git /app && cd /app && chmod +x build-and-start.sh && ./build-and-start.sh"
             ],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/alpha-pack-complete-ubuntu",
+                    "awslogs-group": "/ecs/alpha-pack-optimized",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
                 }
@@ -78,8 +79,8 @@
                     "curl -f http://localhost:3000/health || exit 1"
                 ],
                 "interval": 30,
-                "timeout": 5,
-                "retries": 3,
+                "timeout": 10,
+                "retries": 5,
                 "startPeriod": 300
             }
         }

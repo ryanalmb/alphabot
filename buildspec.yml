@@ -1,0 +1,41 @@
+version: 0.2
+
+# =============================================================================
+# ALPHA PACK PRO - AWS CODEBUILD BUILDSPEC
+# Builds optimized containers in the cloud (no local Docker needed)
+# =============================================================================
+
+phases:
+  pre_build:
+    commands:
+      - echo "🚀 Starting Alpha Pack Pro optimized build..."
+      - echo "🔐 Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo "📦 Creating ECR repository if it doesn't exist..."
+      - aws ecr create-repository --repository-name alpha-pack-pro --region $AWS_DEFAULT_REGION --image-scanning-configuration scanOnPush=true --encryption-configuration encryptionType=AES256 || echo "Repository already exists"
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/alpha-pack-pro
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      
+  build:
+    commands:
+      - echo "🏗️ Building optimized Alpha Pack Pro container..."
+      - echo "Build started on `date`"
+      - echo "Building the Docker image with multi-stage optimization..."
+      - docker build -f Dockerfile.optimized -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      
+  post_build:
+    commands:
+      - echo "📤 Pushing optimized images to ECR..."
+      - echo "Build completed on `date`"
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo "✅ Optimized container build complete!"
+      - echo "📍 Image URI: $REPOSITORY_URI:latest"
+      - printf '[{"name":"alpha-pack-optimized-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
+      
+artifacts:
+  files:
+    - imagedefinitions.json
+    - alpha-pack-optimized.json

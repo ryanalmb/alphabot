@@ -1,0 +1,112 @@
+# =============================================================================
+# ALPHA PACK PRO - PRODUCTION OPTIMIZED DOCKERFILE
+# Multi-stage build with aggressive caching for 30-second deployments
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# STAGE 1: BASE DEPENDENCIES (HEAVILY CACHED)
+# This stage is built once and cached in ECR
+# -----------------------------------------------------------------------------
+FROM node:18-bullseye AS base-dependencies
+
+# Install system dependencies (cached layer)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    python3 \
+    python3-pip \
+    build-essential \
+    pkg-config \
+    libxi-dev \
+    libxext-dev \
+    libx11-dev \
+    mesa-common-dev \
+    libgl1-mesa-dev \
+    locales \
+    && locale-gen en_US.UTF-8 \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set locale and Node.js environment
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV NODE_OPTIONS="--max-old-space-size=6144"
+ENV NPM_CONFIG_REGISTRY="https://registry.npmjs.org/"
+
+# Configure npm for optimal performance
+RUN npm config set fetch-timeout 600000 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files for dependency caching
+COPY package*.json ./
+
+# Install ALL dependencies with memory optimization (cached layer)
+RUN echo "Installing dependencies with memory optimization..." \
+    && node --max-old-space-size=6144 $(which npm) install --silent --no-audit --no-fund \
+    && echo "Dependencies installation complete"
+
+# -----------------------------------------------------------------------------
+# STAGE 2: APPLICATION BUILD (ONLY REBUILDS WHEN CODE CHANGES)
+# This stage uses the cached base and only rebuilds when source changes
+# -----------------------------------------------------------------------------
+FROM base-dependencies AS application-builder
+
+# Copy source code (triggers rebuild only when code changes)
+COPY . .
+
+# Build React frontend with memory optimization
+RUN echo "Building React frontend..." \
+    && node --max-old-space-size=6144 $(which npm) run build \
+    && echo "Frontend build complete"
+
+# -----------------------------------------------------------------------------
+# STAGE 3: PRODUCTION RUNTIME (MINIMAL, FAST STARTUP)
+# This stage creates the final optimized container
+# -----------------------------------------------------------------------------
+FROM node:18-bullseye-slim AS production
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=6144"
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Copy built application from previous stages
+COPY --from=base-dependencies /app/node_modules ./node_modules
+COPY --from=application-builder /app/build ./build
+COPY --from=application-builder /app/package*.json ./
+COPY --from=application-builder /app/app.js ./
+COPY --from=application-builder /app/telegram-bot.js ./
+COPY --from=application-builder /app/services ./services
+COPY --from=application-builder /app/frontend ./frontend
+
+# Create non-root user for security
+RUN groupadd -r alphapack && useradd -r -g alphapack alphapack \
+    && chown -R alphapack:alphapack /app
+
+# Switch to non-root user
+USER alphapack
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Start the application
+CMD ["node", "app.js"]
