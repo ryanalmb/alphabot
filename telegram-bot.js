@@ -389,7 +389,7 @@ bot.on('callback_query', async (ctx) => {
 • Social feed and leaderboards
 
 🌐 *Direct Access*
-Visit: http://54.224.48.59:3000/miniapp
+Visit: http://alpha-pack-alb-1477014246.us-east-1.elb.amazonaws.com/miniapp
 
 ⚠️ *Note*: HTTPS version coming soon for full Telegram integration!
 
