@@ -1,0 +1,68 @@
+# Multi-stage Dockerfile with aggressive caching for Alpha Pack
+# This Dockerfile is optimized for build speed and layer caching
+
+# Stage 1: Base dependencies (rarely changes)
+FROM node:18-alpine AS base-deps
+WORKDIR /app
+RUN apk add --no-cache \
+    git \
+    python3 \
+    py3-pip \
+    build-base \
+    pkgconfig \
+    libxi-dev \
+    libxext-dev \
+    libx11-dev \
+    mesa-dev \
+    curl \
+    && ln -sf /usr/bin/python3 /usr/bin/python
+
+# Stage 2: Backend dependencies (changes when package.json changes)
+FROM base-deps AS backend-deps
+COPY package*.json ./
+RUN npm ci --only=production --silent --no-audit --no-fund
+
+# Stage 3: Frontend dependencies (changes when frontend package changes)
+FROM base-deps AS frontend-deps
+COPY frontend-package.json package.json
+RUN npm install --silent --no-audit --no-fund
+
+# Stage 4: Frontend build (changes when frontend code changes)
+FROM frontend-deps AS frontend-build
+COPY src ./src/
+COPY public ./public/
+RUN npm run build
+
+# Stage 5: Final runtime (combines everything)
+FROM node:18-alpine AS runtime
+WORKDIR /app
+
+# Install only runtime dependencies
+RUN apk add --no-cache curl
+
+# Copy backend dependencies
+COPY --from=backend-deps /app/node_modules ./node_modules
+
+# Copy backend source
+COPY app.js ./
+COPY routes ./routes/
+COPY services ./services/
+COPY telegram-bot.js ./
+
+# Copy frontend build
+COPY --from=frontend-build /app/build ./build/
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S alphapack -u 1001 && \
+    chown -R alphapack:nodejs /app
+
+USER alphapack
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+EXPOSE 3000
+
+CMD ["node", "app.js"]

@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:8}
+      - CACHE_TAG=cache
+      - echo Pulling cache images...
+      - docker pull $REPOSITORY_URI:$CACHE_TAG || echo "No cache found"
+      - docker pull $REPOSITORY_URI:latest || echo "No previous image found"
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image with cache...
+      - docker build --cache-from $REPOSITORY_URI:$CACHE_TAG --cache-from $REPOSITORY_URI:latest -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$CACHE_TAG -f Dockerfile.cached .
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$CACHE_TAG
+      - echo Writing image definitions file...
+      - printf '[{"name":"alpha-pack-cached-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
+
+cache:
+  paths:
+    - '/var/lib/docker/**/*'
