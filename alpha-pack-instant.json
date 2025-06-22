@@ -1,0 +1,84 @@
+{
+    "family": "alpha-pack-instant",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "4096",
+    "memory": "8192",
+    "executionRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::645634482532:role/AlphaPackECSTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "alpha-pack-instant-container",
+            "image": "node:18",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "command": [
+                "sh",
+                "-c",
+                "apt-get update && apt-get install -y --no-install-recommends git curl python3 python3-pip build-essential pkg-config libxi-dev libxext-dev libx11-dev mesa-common-dev libgl1-mesa-dev locales && locale-gen en_US.UTF-8 && echo 'Starting optimized Alpha Pack build...' && git config --global http.postBuffer 524288000 && git config --global http.maxRequestBuffer 100M && git config --global core.compression 0 && git clone --depth 1 --single-branch --no-tags https://github.com/ryanalmb/alphabot.git /app && echo 'Repository cloned successfully' && cd /app && echo 'Installing dependencies with memory optimization...' && node --max-old-space-size=6144 $(which npm) install --silent --no-audit --no-fund && echo 'Building frontend...' && node --max-old-space-size=6144 $(which npm) run build && echo 'Starting Alpha Pack Pro...' && node app.js"
+            ],
+            "environment": [
+                {
+                    "name": "AWS_REGION",
+                    "value": "us-east-1"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "TELEGRAM_BOT_TOKEN",
+                    "value": "7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M"
+                },
+                {
+                    "name": "JWT_SECRET",
+                    "value": "y63RO6mBKLJtBG0b9D8dmAdy8QgaMJsW"
+                },
+                {
+                    "name": "ENCRYPTION_KEY",
+                    "value": "rmkhfTLaCAWjfCog67q9uHhPMaCuWzfO"
+                },
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "NODE_OPTIONS",
+                    "value": "--max-old-space-size=6144"
+                },
+                {
+                    "name": "LANG",
+                    "value": "en_US.UTF-8"
+                },
+                {
+                    "name": "LC_ALL",
+                    "value": "en_US.UTF-8"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/alpha-pack-instant",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:3000/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 10,
+                "retries": 5,
+                "startPeriod": 300
+            }
+        }
+    ]
+}
