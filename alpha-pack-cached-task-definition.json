@@ -1,0 +1,89 @@
+{
+    "family": "alpha-pack-cached",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "2048",
+    "memory": "4096",
+    "executionRoleArn": "arn:aws:iam::645634482532:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+        {
+            "name": "alpha-pack-cached-container",
+            "image": "645634482532.dkr.ecr.us-east-1.amazonaws.com/alpha-pack-pro:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "environment": [
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "TELEGRAM_BOT_TOKEN",
+                    "value": "7847029671:AAEk8V6GxFdn8eba5xumX_GHUPnkkexG91M"
+                },
+                {
+                    "name": "SOLANA_PRIVATE_KEY",
+                    "value": "[34,156,123,45,78,234,12,89,156,78,234,45,123,89,234,67,123,45,78,156,234,89,45,123,78,234,156,45,89,123,67,234]"
+                },
+                {
+                    "name": "ETHEREUM_RPC_URL",
+                    "value": "https://mainnet.infura.io/v3/your-project-id"
+                },
+                {
+                    "name": "SOLANA_RPC_URL",
+                    "value": "https://api.mainnet-beta.solana.com"
+                },
+                {
+                    "name": "REDIS_URL",
+                    "value": "redis://localhost:6379"
+                },
+                {
+                    "name": "DATABASE_URL",
+                    "value": "postgresql://localhost:5432/alphapack"
+                },
+                {
+                    "name": "JWT_SECRET",
+                    "value": "your-super-secret-jwt-key-change-in-production"
+                },
+                {
+                    "name": "ENCRYPTION_KEY",
+                    "value": "your-32-character-encryption-key-here"
+                },
+                {
+                    "name": "AWS_REGION",
+                    "value": "us-east-1"
+                },
+                {
+                    "name": "WEBAPP_URL",
+                    "value": "https://your-domain.com"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/alpha-pack-cached",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:3000/health || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            }
+        }
+    ]
+}
