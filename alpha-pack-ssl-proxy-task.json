@@ -1,0 +1,48 @@
+{
+  "family": "alpha-pack-ssl-proxy",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::645634482532:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "nginx-ssl-proxy",
+      "image": "nginx:alpine",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "protocol": "tcp"
+        },
+        {
+          "containerPort": 443,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "BACKEND_HOST",
+          "value": "172.31.30.33"
+        },
+        {
+          "name": "BACKEND_PORT",
+          "value": "3000"
+        }
+      ],
+      "command": [
+        "/bin/sh",
+        "-c",
+        "apk add --no-cache openssl && mkdir -p /etc/nginx/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/privkey.pem -out /etc/nginx/ssl/fullchain.pem -subj '/C=US/ST=CA/L=SF/O=AlphaPack/CN=alphapackbot.duckdns.org' && cat > /etc/nginx/nginx.conf << 'EOF'\nevents { worker_connections 1024; }\nhttp {\n  upstream backend { server 172.31.30.33:3000; }\n  server {\n    listen 80;\n    server_name alphapackbot.duckdns.org;\n    return 301 https://\\$server_name\\$request_uri;\n  }\n  server {\n    listen 443 ssl http2;\n    server_name alphapackbot.duckdns.org;\n    ssl_certificate /etc/nginx/ssl/fullchain.pem;\n    ssl_certificate_key /etc/nginx/ssl/privkey.pem;\n    ssl_protocols TLSv1.2 TLSv1.3;\n    ssl_ciphers HIGH:!aNULL:!MD5;\n    location / {\n      proxy_pass http://backend;\n      proxy_set_header Host \\$host;\n      proxy_set_header X-Real-IP \\$remote_addr;\n      proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;\n      proxy_set_header X-Forwarded-Proto \\$scheme;\n      proxy_http_version 1.1;\n      proxy_set_header Upgrade \\$http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n    }\n  }\n}\nEOF\nnginx -g 'daemon off;'"
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/alpha-pack-ssl-proxy",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

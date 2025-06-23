@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  nginx-ssl-proxy:
+    image: nginx:alpine
+    container_name: alpha-pack-ssl-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-ssl-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl-certs:/etc/nginx/ssl:ro
+    depends_on:
+      - certbot
+    restart: unless-stopped
+    networks:
+      - alpha-pack-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: alpha-pack-certbot
+    volumes:
+      - ./ssl-certs:/etc/letsencrypt
+      - ./certbot-webroot:/var/www/certbot
+    command: >
+      sh -c "
+        if [ ! -f /etc/letsencrypt/live/alphapackbot.duckdns.org/fullchain.pem ]; then
+          certbot certonly --standalone --non-interactive --agree-tos 
+          --email admin@alphapackbot.duckdns.org 
+          --domains alphapackbot.duckdns.org 
+          --cert-path /etc/letsencrypt/live/alphapackbot.duckdns.org/fullchain.pem 
+          --key-path /etc/letsencrypt/live/alphapackbot.duckdns.org/privkey.pem
+        fi &&
+        ln -sf /etc/letsencrypt/live/alphapackbot.duckdns.org/fullchain.pem /etc/nginx/ssl/fullchain.pem &&
+        ln -sf /etc/letsencrypt/live/alphapackbot.duckdns.org/privkey.pem /etc/nginx/ssl/privkey.pem
+      "
+    networks:
+      - alpha-pack-network
+
+networks:
+  alpha-pack-network:
+    external: true
